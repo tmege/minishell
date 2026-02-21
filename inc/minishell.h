@@ -167,5 +167,6 @@ int				builtin_export(char **args, t_data *data);
 int				builtin_unset(char **args, t_data *data);
 int				builtin_env(t_data *data);
 int				builtin_exit(char **args, t_data *data);
+int				builtin_dot(char **args);
 
 #endif

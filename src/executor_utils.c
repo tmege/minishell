@@ -14,13 +14,14 @@
 
 static char	*try_path(char *dir, char *cmd)
 {
-	char	*tmp;
-	char	*path;
+	struct stat	sb;
+	char		*tmp;
+	char		*path;
 
 	tmp = ft_strjoin(dir, "/");
 	path = ft_strjoin(tmp, cmd);
 	free(tmp);
-	if (access(path, X_OK) == 0)
+	if (access(path, X_OK) == 0 && stat(path, &sb) == 0 && !S_ISDIR(sb.st_mode))
 		return (path);
 	free(path);
 	return (NULL);
@@ -84,6 +85,8 @@ int	is_builtin(char *cmd)
 	if (ft_strncmp(cmd, "env", 4) == 0)
 		return (1);
 	if (ft_strncmp(cmd, "exit", 5) == 0)
+		return (1);
+	if (ft_strncmp(cmd, ".", 2) == 0)
 		return (1);
 	return (0);
 }

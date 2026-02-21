@@ -94,5 +94,7 @@ int	exec_builtin(t_cmd *cmd, t_data *data)
 		return (builtin_env(data));
 	if (ft_strncmp(cmd->args[0], "exit", 5) == 0)
 		return (builtin_exit(cmd->args, data));
+	if (ft_strncmp(cmd->args[0], ".", 2) == 0)
+		return (builtin_dot(cmd->args));
 	return (1);
 }

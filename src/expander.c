@@ -16,8 +16,23 @@ static char	*expand_dollar(char *str, int *i, t_data *data)
 {
 	char	*name;
 	char	*val;
+	int		start;
 
 	(*i)++;
+	if (str[*i] == '{')
+	{
+		(*i)++;
+		start = *i;
+		while (str[*i] && str[*i] != '}')
+			(*i)++;
+		if (!str[*i])
+			return (ft_strdup("${"));
+		name = ft_substr(str, start, *i - start);
+		(*i)++;
+		val = get_env_value(name, data);
+		free(name);
+		return (val);
+	}
 	name = extract_var_name(str, i);
 	if (!name)
 		return (ft_strdup("$"));
@@ -78,7 +93,7 @@ static char	*expand_chunk(char *str, int *i, t_data *data)
 		return (expand_dq(str, i, data));
 	if (str[*i] == '$' && str[*i + 1]
 		&& (ft_isalnum(str[*i + 1]) || str[*i + 1] == '_'
-			|| str[*i + 1] == '?'))
+			|| str[*i + 1] == '?' || str[*i + 1] == '{'))
 		return (expand_dollar(str, i, data));
 	return (NULL);
 }

@@ -41,7 +41,8 @@ BUILTIN_SRCS = builtins/builtin_echo.c \
                builtins/builtin_export_utils.c \
                builtins/builtin_unset.c \
                builtins/builtin_env.c \
-               builtins/builtin_exit.c
+               builtins/builtin_exit.c \
+               builtins/builtin_dot.c
 
 ALL_SRCS = $(SRCS) $(BUILTIN_SRCS)
 OBJS = $(ALL_SRCS:%.c=$(OBJ_DIR)/%.o)

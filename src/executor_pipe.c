@@ -6,61 +6,36 @@
 /*   By: tmege <tmege@student.42barcelona.com>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 13:00:35 by tmege             #+#    #+#             */
-/*   Updated: 2026/02/16 14:32:18 by tmege            ###   ########.fr       */
+/*   Updated: 2026/02/21 00:00:00 by tmege            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-static void	close_pipes(int **pipes, int n)
-{
-	int	i;
+/* fds[0]=prev_read  fds[1]=new_pipe_read  fds[2]=new_pipe_write */
 
-	i = 0;
-	while (i < n)
+static void	pipe_child_setup(int *fds, int is_last)
+{
+	if (fds[0] != -1)
+		dup2(fds[0], STDIN_FILENO);
+	if (!is_last)
+		dup2(fds[2], STDOUT_FILENO);
+	if (fds[0] != -1)
+		close(fds[0]);
+	if (!is_last)
 	{
-		close(pipes[i][0]);
-		close(pipes[i][1]);
-		free(pipes[i]);
-		i++;
+		close(fds[1]);
+		close(fds[2]);
 	}
-	free(pipes);
 }
 
-static int	**create_pipes(int n)
+static void	pipe_child(t_cmd *cmd, t_data *data, int *fds, int is_last)
 {
-	int	**pipes;
-	int	i;
-
-	pipes = malloc(sizeof(int *) * n);
-	if (!pipes)
-		return (NULL);
-	i = 0;
-	while (i < n)
-	{
-		pipes[i] = malloc(sizeof(int) * 2);
-		if (!pipes[i] || pipe(pipes[i]) < 0)
-			return (NULL);
-		i++;
-	}
-	return (pipes);
-}
-
-static void	pipe_child(t_cmd *cmd, t_data *data, int **pipes, int *info)
-{
-	int	idx;
-	int	n;
 	int	ret;
 
-	idx = info[0];
-	n = info[1];
 	data->in_pipe = 1;
 	setup_signals_child();
-	if (idx > 0)
-		dup2(pipes[idx - 1][0], STDIN_FILENO);
-	if (idx < n - 1)
-		dup2(pipes[idx][1], STDOUT_FILENO);
-	close_pipes(pipes, n - 1);
+	pipe_child_setup(fds, is_last);
 	if (apply_redirections(cmd) != 0)
 	{
 		free_cmds(data->cmds);
@@ -81,6 +56,19 @@ static void	pipe_child(t_cmd *cmd, t_data *data, int **pipes, int *info)
 		exit(ret);
 	}
 	pipe_exec_cmd(cmd, data);
+}
+
+static void	pipe_parent_update(int *fds, int is_last)
+{
+	if (fds[0] != -1)
+		close(fds[0]);
+	if (!is_last)
+	{
+		close(fds[2]);
+		fds[0] = fds[1];
+	}
+	else
+		fds[0] = -1;
 }
 
 static void	wait_children(pid_t *pids, int n, t_data *data)
@@ -111,27 +99,32 @@ static void	wait_children(pid_t *pids, int n, t_data *data)
 
 void	execute_pipeline(t_data *data)
 {
-	int		**pipes;
 	pid_t	*pids;
 	t_cmd	*cmd;
+	int		fds[3];
 	int		info[2];
 
 	info[1] = count_cmds(data->cmds);
-	pipes = create_pipes(info[1] - 1);
 	pids = malloc(sizeof(pid_t) * info[1]);
-	if (!pipes || !pids)
+	if (!pids)
 		return ;
 	setup_signals_exec();
+	fds[0] = -1;
 	cmd = data->cmds;
 	info[0] = -1;
 	while (++info[0] < info[1])
 	{
+		if (info[0] < info[1] - 1 && pipe(fds + 1) < 0)
+		{
+			perror("minishell");
+			break ;
+		}
 		pids[info[0]] = fork();
 		if (pids[info[0]] == 0)
-			pipe_child(cmd, data, pipes, info);
+			pipe_child(cmd, data, fds, info[0] == info[1] - 1);
+		pipe_parent_update(fds, info[0] == info[1] - 1);
 		cmd = cmd->next;
 	}
-	close_pipes(pipes, info[1] - 1);
 	wait_children(pids, info[1], data);
 	free(pids);
 }
