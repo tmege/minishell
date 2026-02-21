@@ -39,6 +39,8 @@ static char	*expand_single_quotes(char *str, int *i)
 	}
 	if (str[*i] == '\'')
 		(*i)++;
+	if (!result)
+		return (ft_strdup(""));
 	return (result);
 }
 
@@ -63,6 +65,8 @@ static char	*expand_dq(char *str, int *i, t_data *data)
 	}
 	if (str[*i] == '"')
 		(*i)++;
+	if (!result)
+		return (ft_strdup(""));
 	return (result);
 }
 

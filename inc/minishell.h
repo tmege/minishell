@@ -127,6 +127,7 @@ char			**list_to_args(t_list *lst);
 void			free_tokens(t_token *tokens);
 void			free_cmds(t_cmd *cmds);
 void			free_redirs(t_redir *redirs);
+void			free_envp(char **envp);
 
 /* ───── env utils ───── */
 

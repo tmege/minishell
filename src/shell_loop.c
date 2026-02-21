@@ -69,6 +69,7 @@ void	shell_loop(t_data *data)
 	char	*line;
 	char	*prompt;
 
+	rl_variable_bind("enable-bracketed-paste", "off");
 	while (data->running)
 	{
 		setup_signals();

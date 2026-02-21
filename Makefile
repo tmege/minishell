@@ -45,7 +45,7 @@ BUILTIN_SRCS = builtins/builtin_echo.c \
 
 ALL_SRCS = $(SRCS) $(BUILTIN_SRCS)
 OBJS = $(ALL_SRCS:%.c=$(OBJ_DIR)/%.o)
-HEADERS = $(wildcard $(INC_DIR)/*.h)
+HEADERS = $(INC_DIR)/minishell.h
 
 all: $(NAME)
 

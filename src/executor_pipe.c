@@ -50,6 +50,7 @@ static void	pipe_child(t_cmd *cmd, t_data *data, int **pipes, int *info)
 {
 	int	idx;
 	int	n;
+	int	ret;
 
 	idx = info[0];
 	n = info[1];
@@ -65,7 +66,12 @@ static void	pipe_child(t_cmd *cmd, t_data *data, int **pipes, int *info)
 	if (!cmd->args)
 		exit(0);
 	if (is_builtin(cmd->args[0]))
-		exit(exec_builtin(cmd, data));
+	{
+		ret = exec_builtin(cmd, data);
+		free_cmds(data->cmds);
+		free_envp(data->envp);
+		exit(ret);
+	}
 	pipe_exec_cmd(cmd, data);
 }
 

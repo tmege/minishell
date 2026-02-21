@@ -82,7 +82,11 @@ static void	exec_single(t_cmd *cmd, t_data *data)
 	else
 		path = find_cmd_path(cmd->args[0], data->envp);
 	if (!path)
+	{
+		if (!ft_strchr(cmd->args[0], '/'))
+			cmd_path_error(cmd->args[0], data);
 		return ;
+	}
 	exec_external(cmd, data, path);
 }
 

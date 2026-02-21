@@ -49,21 +49,6 @@ static char	**dup_envp(char **envp)
 	return (new);
 }
 
-static void	free_envp(char **envp)
-{
-	int	i;
-
-	if (!envp)
-		return ;
-	i = 0;
-	while (envp[i])
-	{
-		free(envp[i]);
-		i++;
-	}
-	free(envp);
-}
-
 void	init_shell(t_data *data, char **envp)
 {
 	data->envp = dup_envp(envp);

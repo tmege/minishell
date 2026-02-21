@@ -21,7 +21,8 @@ static int	find_env_index(char *name, char **envp)
 	i = 0;
 	while (envp[i])
 	{
-		if (ft_strncmp(envp[i], name, len) == 0 && envp[i][len] == '=')
+		if (ft_strncmp(envp[i], name, len) == 0
+			&& (envp[i][len] == '=' || envp[i][len] == '\0'))
 			return (i);
 		i++;
 	}
