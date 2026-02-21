@@ -66,11 +66,15 @@ void	pipe_exec_cmd(t_cmd *cmd, t_data *data)
 	{
 		execve(path, cmd->args, data->envp);
 		perror("minishell");
+		free_cmds(data->cmds);
+		free_envp(data->envp);
 		free(path);
 		exit(126);
 	}
 	if (!ft_strchr(cmd->args[0], '/'))
 		cmd_path_error(cmd->args[0], data);
+	free_cmds(data->cmds);
+	free_envp(data->envp);
 	exit(data->exit_status);
 }
 

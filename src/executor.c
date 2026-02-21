@@ -37,9 +37,17 @@ static void	exec_external(t_cmd *cmd, t_data *data, char *path)
 	{
 		setup_signals_child();
 		if (apply_redirections(cmd) != 0)
+		{
+			free_cmds(data->cmds);
+			free_envp(data->envp);
+			free(path);
 			exit(1);
+		}
 		execve(path, cmd->args, data->envp);
 		perror("minishell");
+		free_cmds(data->cmds);
+		free_envp(data->envp);
+		free(path);
 		exit(126);
 	}
 	free(path);

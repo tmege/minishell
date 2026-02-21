@@ -1,0 +1,58 @@
+Modificaciones del commit fea3322 (21/02/2026)
+===============================================
+
+1. free_envp() movida a free_utils.c
+   - Era estatica en init_shell.c
+   - Ahora es publica y declarada en inc/minishell.h
+   - Archivos: src/init_shell.c, src/free_utils.c, inc/minishell.h
+
+2. Fix memory leak en los pipes (src/executor_pipe.c)
+   - Cuando un builtin se ejecuta en un proceso hijo (fork),
+     free_cmds() y free_envp() se llaman antes de exit()
+
+3. Fix comando no encontrado (src/executor.c)
+   - Si find_cmd_path() devuelve NULL y el comando no contiene '/',
+     se llama a cmd_path_error() para mostrar el error
+   - Antes : retorno silencioso sin mensaje
+
+4. Fix crash con comillas vacias (src/expander.c)
+   - '' o "" devolvian NULL, causando un segfault
+   - Correccion : devuelve ft_strdup("") si result es NULL
+   - Afecta a expand_single_quotes() y expand_dq()
+
+5. Fix variables sin valor en env (src/env_utils.c)
+   - find_env_index() acepta ahora variables exportadas sin '='
+   - Condicion anadida : envp[i][len] == '\0' ademas de '='
+
+6. Desactivacion del bracketed paste (src/shell_loop.c)
+   - Anadido rl_variable_bind("enable-bracketed-paste", "off")
+   - Evita los caracteres parasitos \e[?2004h en readline
+
+7. Makefile
+   - HEADERS simplificado : $(wildcard ...) reemplazado por ruta directa
+
+---
+
+Fix memory leaks : '.' y '..' como entrada (21/02/2026)
+=========================================================
+
+Causa : '.' y '..' no contienen '/', por lo que find_cmd_path() los busca
+en el PATH y encuentra un directorio accesible (ej: /usr/bin/.). execve() falla
+con EACCES (Permission denied), pero el proceso hijo hacia exit() sin
+liberar nada.
+
+Archivos modificados :
+
+1. src/executor.c - exec_external() (fork hijo para comando externo)
+   - En fallo de apply_redirections() : free_cmds + free_envp + free(path) antes de exit(1)
+   - En fallo de execve()             : free_cmds + free_envp + free(path) antes de exit(126)
+
+2. src/executor_cmd.c - pipe_exec_cmd() (hijo de pipe comando externo)
+   - En fallo de execve()      : free_cmds + free_envp antes de exit(126)
+   - En comando no encontrado  : free_cmds + free_envp antes de exit(exit_status)
+
+3. src/executor_pipe.c - pipe_child() (hijo de pipe salidas anticipadas)
+   - En fallo de apply_redirections() : free_cmds + free_envp antes de exit(1)
+   - Con cmd->args NULL               : free_cmds + free_envp antes de exit(0)
+
+Resultado valgrind : 0 definitely lost, 0 indirectly lost

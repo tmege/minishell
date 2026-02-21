@@ -62,9 +62,17 @@ static void	pipe_child(t_cmd *cmd, t_data *data, int **pipes, int *info)
 		dup2(pipes[idx][1], STDOUT_FILENO);
 	close_pipes(pipes, n - 1);
 	if (apply_redirections(cmd) != 0)
+	{
+		free_cmds(data->cmds);
+		free_envp(data->envp);
 		exit(1);
+	}
 	if (!cmd->args)
+	{
+		free_cmds(data->cmds);
+		free_envp(data->envp);
 		exit(0);
+	}
 	if (is_builtin(cmd->args[0]))
 	{
 		ret = exec_builtin(cmd, data);
