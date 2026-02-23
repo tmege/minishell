@@ -113,6 +113,7 @@ char			*extract_var_name(char *str, int *i);
 char			*get_env_value(char *name, t_data *data);
 char			*append_char(char *s, char c);
 char			*append_str(char *s, char *add);
+char			*expand_single_quotes(char *str, int *i);
 
 /* ───── parser ───── */
 

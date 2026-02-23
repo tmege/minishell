@@ -41,51 +41,35 @@ static char	*expand_dollar(char *str, int *i, t_data *data)
 	return (val);
 }
 
-static char	*expand_single_quotes(char *str, int *i)
+static char	*process_dq_char(char *str, int *i, t_data *data, char *res)
 {
-	char	*result;
+	char	*exp;
 
-	result = NULL;
-	(*i)++;
-	while (str[*i] && str[*i] != '\'')
+	if (str[*i] == '\\' && str[*i + 1]
+		&& ft_strchr("\"\\$`\n", str[*i + 1]))
 	{
-		result = append_char(result, str[*i]);
 		(*i)++;
+		return (append_char(res, str[(*i)++]));
 	}
-	if (str[*i] == '\'')
-		(*i)++;
-	if (!result)
-		return (ft_strdup(""));
-	return (result);
+	if (str[*i] == '$' && str[*i + 1]
+		&& str[*i + 1] != '"' && str[*i + 1] != ' ')
+	{
+		exp = expand_dollar(str, i, data);
+		res = append_str(res, exp);
+		free(exp);
+		return (res);
+	}
+	return (append_char(res, str[(*i)++]));
 }
 
 static char	*expand_dq(char *str, int *i, t_data *data)
 {
 	char	*result;
-	char	*expanded;
 
 	result = NULL;
 	(*i)++;
 	while (str[*i] && str[*i] != '"')
-	{
-		if (str[*i] == '\\' && str[*i + 1]
-			&& (str[*i + 1] == '"' || str[*i + 1] == '\\'
-				|| str[*i + 1] == '$' || str[*i + 1] == '`'
-				|| str[*i + 1] == '\n'))
-		{
-			(*i)++;
-			result = append_char(result, str[(*i)++]);
-		}
-		else if (str[*i] == '$' && str[*i + 1]
-			&& str[*i + 1] != '"' && str[*i + 1] != ' ')
-		{
-			expanded = expand_dollar(str, i, data);
-			result = append_str(result, expanded);
-			free(expanded);
-		}
-		else
-			result = append_char(result, str[(*i)++]);
-	}
+		result = process_dq_char(str, i, data, result);
 	if (str[*i] == '"')
 		(*i)++;
 	if (!result)

@@ -76,3 +76,21 @@ char	*get_env_value(char *name, t_data *data)
 	}
 	return (ft_strdup(""));
 }
+
+char	*expand_single_quotes(char *str, int *i)
+{
+	char	*result;
+
+	result = NULL;
+	(*i)++;
+	while (str[*i] && str[*i] != '\'')
+	{
+		result = append_char(result, str[*i]);
+		(*i)++;
+	}
+	if (str[*i] == '\'')
+		(*i)++;
+	if (!result)
+		return (ft_strdup(""));
+	return (result);
+}
