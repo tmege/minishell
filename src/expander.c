@@ -68,7 +68,15 @@ static char	*expand_dq(char *str, int *i, t_data *data)
 	(*i)++;
 	while (str[*i] && str[*i] != '"')
 	{
-		if (str[*i] == '$' && str[*i + 1]
+		if (str[*i] == '\\' && str[*i + 1]
+			&& (str[*i + 1] == '"' || str[*i + 1] == '\\'
+				|| str[*i + 1] == '$' || str[*i + 1] == '`'
+				|| str[*i + 1] == '\n'))
+		{
+			(*i)++;
+			result = append_char(result, str[(*i)++]);
+		}
+		else if (str[*i] == '$' && str[*i + 1]
 			&& str[*i + 1] != '"' && str[*i + 1] != ' ')
 		{
 			expanded = expand_dollar(str, i, data);
