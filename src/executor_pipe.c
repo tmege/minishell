@@ -12,7 +12,7 @@
 
 #include "minishell.h"
 
-/* fds[0]=prev_read  fds[1]=new_pipe_read  fds[2]=new_pipe_write */
+/* st[0]=prev_read st[1]=pipe_read st[2]=pipe_write st[3]=i st[4]=n */
 
 static void	pipe_child_setup(int *fds, int is_last)
 {
@@ -58,19 +58,6 @@ static void	pipe_child(t_cmd *cmd, t_data *data, int *fds, int is_last)
 	pipe_exec_cmd(cmd, data);
 }
 
-static void	pipe_parent_update(int *fds, int is_last)
-{
-	if (fds[0] != -1)
-		close(fds[0]);
-	if (!is_last)
-	{
-		close(fds[2]);
-		fds[0] = fds[1];
-	}
-	else
-		fds[0] = -1;
-}
-
 static void	wait_children(pid_t *pids, int n, t_data *data)
 {
 	int	i;
@@ -97,34 +84,48 @@ static void	wait_children(pid_t *pids, int n, t_data *data)
 	}
 }
 
+static int	pipe_fork_one(t_cmd **cmd, t_data *data, int *st, pid_t *pids)
+{
+	if (st[3] < st[4] - 1 && pipe(st + 1) < 0)
+	{
+		perror("minishell");
+		return (-1);
+	}
+	pids[st[3]] = fork();
+	if (pids[st[3]] == 0)
+		pipe_child(*cmd, data, st, st[3] == st[4] - 1);
+	if (st[0] != -1)
+		close(st[0]);
+	if (st[3] < st[4] - 1)
+	{
+		close(st[2]);
+		st[0] = st[1];
+	}
+	else
+		st[0] = -1;
+	*cmd = (*cmd)->next;
+	return (0);
+}
+
 void	execute_pipeline(t_data *data)
 {
 	pid_t	*pids;
 	t_cmd	*cmd;
-	int		fds[3];
-	int		info[2];
+	int		st[5];
 
-	info[1] = count_cmds(data->cmds);
-	pids = malloc(sizeof(pid_t) * info[1]);
+	st[4] = count_cmds(data->cmds);
+	pids = malloc(sizeof(pid_t) * st[4]);
 	if (!pids)
 		return ;
 	setup_signals_exec();
-	fds[0] = -1;
+	st[0] = -1;
 	cmd = data->cmds;
-	info[0] = -1;
-	while (++info[0] < info[1])
+	st[3] = -1;
+	while (++st[3] < st[4])
 	{
-		if (info[0] < info[1] - 1 && pipe(fds + 1) < 0)
-		{
-			perror("minishell");
+		if (pipe_fork_one(&cmd, data, st, pids) < 0)
 			break ;
-		}
-		pids[info[0]] = fork();
-		if (pids[info[0]] == 0)
-			pipe_child(cmd, data, fds, info[0] == info[1] - 1);
-		pipe_parent_update(fds, info[0] == info[1] - 1);
-		cmd = cmd->next;
 	}
-	wait_children(pids, info[1], data);
+	wait_children(pids, st[4], data);
 	free(pids);
 }
