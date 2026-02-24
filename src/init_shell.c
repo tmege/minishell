@@ -56,6 +56,7 @@ void	init_shell(t_data *data, char **envp)
 	data->running = 1;
 	data->in_pipe = 0;
 	data->cmds = NULL;
+	setup_completion();
 }
 
 void	cleanup_shell(t_data *data)

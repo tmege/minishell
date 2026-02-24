@@ -32,7 +32,8 @@ SRCS = main.c \
        redirections.c \
        heredoc.c \
        heredoc_collect.c \
-       expander_tokens.c
+       expander_tokens.c \
+       completion.c
 
 BUILTIN_SRCS = builtins/builtin_echo.c \
                builtins/builtin_cd.c \

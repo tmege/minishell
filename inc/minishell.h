@@ -85,6 +85,7 @@ typedef struct s_data
 
 /* ───── init / loop / cleanup ───── */
 
+void			setup_completion(void);
 void			init_shell(t_data *data, char **envp);
 void			shell_loop(t_data *data);
 void			cleanup_shell(t_data *data);
