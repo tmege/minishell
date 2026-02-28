@@ -109,12 +109,12 @@ int				check_syntax(t_token *tokens);
 /* ───── expander ───── */
 
 void			expand_tokens(t_token **tokens, t_data *data);
-char			*expand_value(char *str, t_data *data, int quoted);
+char			*expand_value(char *str, t_data *data);
 char			*extract_var_name(char *str, int *i);
 char			*get_env_value(char *name, t_data *data);
 char			*append_char(char *s, char c);
 char			*append_str(char *s, char *add);
-char			*expand_single_quotes(char *str, int *i);
+char			*strip_quotes_only(char *str, int *q);
 
 /* ───── parser ───── */
 

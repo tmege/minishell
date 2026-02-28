@@ -6,7 +6,7 @@
 /*   By: tmege <tmege@student.42barcelona.com>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 13:00:35 by tmege             #+#    #+#             */
-/*   Updated: 2026/02/16 14:32:18 by tmege            ###   ########.fr       */
+/*   Updated: 2026/02/28 00:00:00 by tmege            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,20 +77,37 @@ char	*get_env_value(char *name, t_data *data)
 	return (ft_strdup(""));
 }
 
-char	*expand_single_quotes(char *str, int *i)
+/*
+** strip_quotes_only: quote removal without variable expansion.
+** Used for heredoc delimiters: POSIX says no parameter expansion is
+** performed on the delimiter word, only quote removal.
+** Sets *q to 1 if any quote characters were present (controls whether
+** heredoc content will be expanded or not).
+*/
+char	*strip_quotes_only(char *str, int *q)
 {
-	char	*result;
+	char	*r;
+	char	delim;
+	int		i;
 
-	result = NULL;
-	(*i)++;
-	while (str[*i] && str[*i] != '\'')
+	r = NULL;
+	i = 0;
+	*q = 0;
+	while (str[i])
 	{
-		result = append_char(result, str[*i]);
-		(*i)++;
+		if (str[i] == '\'' || str[i] == '"')
+		{
+			*q = 1;
+			delim = str[i++];
+			while (str[i] && str[i] != delim)
+				r = append_char(r, str[i++]);
+			if (str[i])
+				i++;
+		}
+		else
+			r = append_char(r, str[i++]);
 	}
-	if (str[*i] == '\'')
-		(*i)++;
-	if (!result)
+	if (!r)
 		return (ft_strdup(""));
-	return (result);
+	return (r);
 }

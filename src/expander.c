@@ -6,7 +6,7 @@
 /*   By: tmege <tmege@student.42barcelona.com>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 13:00:35 by tmege             #+#    #+#             */
-/*   Updated: 2026/02/16 14:32:18 by tmege            ###   ########.fr       */
+/*   Updated: 2026/02/28 00:00:00 by tmege            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,23 +66,43 @@ static char	*expand_dq(char *str, int *i, t_data *data)
 {
 	char	*result;
 
-	result = NULL;
+	result = ft_strdup("");
 	(*i)++;
 	while (str[*i] && str[*i] != '"')
 		result = process_dq_char(str, i, data, result);
 	if (str[*i] == '"')
 		(*i)++;
-	if (!result)
-		return (ft_strdup(""));
 	return (result);
 }
 
-static char	*expand_chunk(char *str, int *i, t_data *data)
+/*
+** expand_chunk_m: expands one chunk from str at position *i.
+** Returns the expanded string, wrapping quoted regions with \x01..\x02
+** so the word splitter knows not to split on spaces inside them.
+** Returns NULL for literal (unquoted) characters (caller appends str[*i]).
+*/
+static char	*expand_chunk_m(char *str, int *i, t_data *data)
 {
+	char	*r;
+	char	*t;
+
 	if (str[*i] == '\'')
-		return (expand_single_quotes(str, i));
+	{
+		r = ft_strdup("\x01");
+		(*i)++;
+		while (str[*i] && str[*i] != '\'')
+			r = append_char(r, str[(*i)++]);
+		if (str[*i] == '\'')
+			(*i)++;
+		return (append_char(r, '\x02'));
+	}
 	if (str[*i] == '"')
-		return (expand_dq(str, i, data));
+	{
+		t = expand_dq(str, i, data);
+		r = append_str(ft_strdup("\x01"), t);
+		free(t);
+		return (append_char(r, '\x02'));
+	}
 	if (str[*i] == '$' && str[*i + 1]
 		&& (ft_isalnum(str[*i + 1]) || str[*i + 1] == '_'
 			|| str[*i + 1] == '?' || str[*i + 1] == '{'))
@@ -90,27 +110,27 @@ static char	*expand_chunk(char *str, int *i, t_data *data)
 	return (NULL);
 }
 
-char	*expand_value(char *str, t_data *data, int quoted)
+char	*expand_value(char *str, t_data *data)
 {
 	char	*result;
 	char	*expanded;
 	int		i;
 
-	result = NULL;
+	result = ft_strdup("");
 	i = 0;
-	(void)quoted;
 	while (str[i])
 	{
-		expanded = expand_chunk(str, &i, data);
+		expanded = expand_chunk_m(str, &i, data);
 		if (expanded)
 		{
 			result = append_str(result, expanded);
 			free(expanded);
 		}
 		else
-			result = append_char(result, str[i++]);
+		{
+			result = append_char(result, str[i]);
+			i++;
+		}
 	}
-	if (!result)
-		result = ft_strdup("");
 	return (result);
 }

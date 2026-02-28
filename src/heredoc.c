@@ -35,11 +35,18 @@ static void	setup_signals_heredoc(void)
 static void	write_heredoc_line(int fd, char *line, int quoted, t_data *data)
 {
 	char	*expanded;
+	int		i;
 
 	if (!quoted)
 	{
-		expanded = expand_value(line, data, 0);
-		write(fd, expanded, ft_strlen(expanded));
+		expanded = expand_value(line, data);
+		i = 0;
+		while (expanded[i])
+		{
+			if (expanded[i] != '\x01' && expanded[i] != '\x02')
+				write(fd, &expanded[i], 1);
+			i++;
+		}
 		free(expanded);
 	}
 	else

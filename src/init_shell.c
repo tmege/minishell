@@ -49,6 +49,20 @@ static char	**dup_envp(char **envp)
 	return (new);
 }
 
+static void	bump_shlvl(t_data *data)
+{
+	char	*val;
+	char	*new_val;
+	int		n;
+
+	val = get_env_value("SHLVL", data);
+	n = ft_atoi(val) + 1;
+	free(val);
+	new_val = ft_itoa(n);
+	set_env_value("SHLVL", new_val, data);
+	free(new_val);
+}
+
 void	init_shell(t_data *data, char **envp)
 {
 	data->envp = dup_envp(envp);
@@ -56,6 +70,7 @@ void	init_shell(t_data *data, char **envp)
 	data->running = 1;
 	data->in_pipe = 0;
 	data->cmds = NULL;
+	bump_shlvl(data);
 	setup_completion();
 }
 
