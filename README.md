@@ -1,8 +1,8 @@
-*Este proyecto ha sido creado como parte del currículo de 42 por tmege, chgomez.*
+*This project was created as part of the 42 curriculum by tmege, chgomez.*
 
 # minishell
 
-## Descripción
+## Description
 
 **minishell** is a simplified Unix shell implementation written in C, inspired by Bash.
 The goal is to reproduce the core behaviour of a real shell: reading user input,
@@ -136,9 +136,9 @@ src/
 
 ---
 
-## Instrucciones
+## Instructions
 
-### Dependencias
+### Dependencies
 
 - `cc` (or any C99-compatible compiler)
 - GNU `readline` library
@@ -148,7 +148,7 @@ On Debian/Ubuntu:
 sudo apt-get install libreadline-dev
 ```
 
-### Compilación
+### Compilation
 
 ```bash
 make        # build the binary
@@ -157,7 +157,7 @@ make fclean # remove object files and binary
 make re     # full rebuild
 ```
 
-### Ejecución
+### Execution
 
 ```bash
 ./minishell
@@ -177,9 +177,9 @@ variable expansion, builtins, signals, and edge cases.
 
 ---
 
-## Recursos
+## Resources
 
-### Documentación oficial
+### Official documentation
 
 - [Bash Reference Manual](https://www.gnu.org/software/bash/manual/bash.html) — authoritative reference for shell behaviour, quoting rules, expansion order, and builtins.
 - [POSIX Shell & Utilities specification](https://pubs.opengroup.org/onlinepubs/9699919799/utilities/V3_chap02.html) — formal standard that defines portable shell semantics.
@@ -187,13 +187,13 @@ variable expansion, builtins, signals, and edge cases.
 - [`man 2 fork`](https://man7.org/linux/man-pages/man2/fork.2.html), [`man 2 execve`](https://man7.org/linux/man-pages/man2/execve.2.html), [`man 2 pipe`](https://man7.org/linux/man-pages/man2/pipe.2.html), [`man 2 waitpid`](https://man7.org/linux/man-pages/man2/waitpid.2.html) — Linux system calls at the core of the execution engine.
 - [`man 2 sigaction`](https://man7.org/linux/man-pages/man2/sigaction.2.html) — signal handling used for `SIGINT` and `SIGQUIT`.
 
-### Artículos y tutoriales
+### Articles & tutorials
 
 - [Writing a Unix Shell (series)](https://indradhanush.github.io/blog/writing-a-unix-shell-part-1/) — step-by-step walkthrough of building a shell from scratch in C.
 - [Let's Build a Shell](https://brennan.io/2015/01/16/write-a-shell-in-c/) — concise tutorial covering fork, exec, and pipes.
 - [The Linux Programming Interface](https://man7.org/tlpi/) (Kerrisk, 2010) — comprehensive reference for system programming on Linux.
 
-### Uso de IA
+### AI usage
 
 Claude (Anthropic) was used as an assistant during development of this project in the following ways:
 
@@ -205,7 +205,7 @@ Claude (Anthropic) was used as an assistant during development of this project i
   incorrect file-descriptor propagation across forked processes.
 - **Code review**: Verifying that quoting and expansion logic matched Bash
   behaviour for edge cases (empty variables, nested quotes, `$?` inside heredocs).
-- **README generation**: Poner el README.md final de buena forma y mas legible.
+- **README generation**: Formatting and improving the readability of the final README.md.
 
 All logic, design decisions, and final code were written and reviewed by the
 project authors. AI was used strictly as a reference, teacher and review tool, not as a
@@ -213,7 +213,6 @@ code generator for the implementation.
 
 ---
 
-## Autores
+## Authors
 
-- **tmege** — [tmege@student.42barcelona.com](mailto:tmege@student.42barcelona.com)
-- **chgomez** — [chgomez@student.42barcelona.com](mailto:chgomez@student.42barcelona.com)
+- **tmege** & **chgomez** 
